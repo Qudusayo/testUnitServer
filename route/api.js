@@ -1,8 +1,9 @@
+require("dotenv").config()
 const express = require("express");
 const axios = require("axios");
 
 const router = express.Router();
-const apiUri = "https://api.exchangeratesapi.io/latest";
+const apiUri = process.env.API_URI;
 
 router.get("/rates", (req, res) => {
     var { base, currency } = req.query;
