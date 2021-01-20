@@ -1,4 +1,4 @@
-require("dotenv").config()
+require("dotenv").config();
 const express = require("express");
 const axios = require("axios");
 
@@ -14,14 +14,8 @@ router.get("/rates", (req, res) => {
         });
     }
 
-    let currencies = currency.split(",");
-
-    var date;
-    var ourRate = {};
-    const errors = [];
-
     axios
-        .get(apiUri, { params: { base } })
+        .get(apiUri, { params: { base, symbols: currency } })
         .then((response) => {
             var { status, data } = response;
 
@@ -29,28 +23,13 @@ router.get("/rates", (req, res) => {
                 return res.status(status).json(data);
             }
 
-            currencies.forEach((exchangeCurrency) => {
-                if (!data.rates[exchangeCurrency]) {
-                    errors.push(exchangeCurrency);
-                } else {
-                    ourRate[exchangeCurrency] = data.rates[exchangeCurrency];
-                }
+            return res.status(200).json({
+                results: {
+                    base: data.base,
+                    date: data.date,
+                    rates: data.rates,
+                },
             });
-            date = data.date;
-
-            if (errors.length) {
-                return res.status(400).json({
-                    error: `Currency ${errors.join(",")} is not supported.`,
-                });
-            } else {
-                res.status(200).json({
-                    results: {
-                        base,
-                        date,
-                        rates: ourRate,
-                    },
-                });
-            }
         })
         .catch((err) => {
             return res.status(err.response.status).json(err.response.data);
